@@ -14,3 +14,7 @@ app.get("/")
 def health_check():
     return {"status": "ok"}
 
+app.post("predict")
+async def predict(file: UploadFile = File(...)):
+    contents = await file.read()
+    return {"filename": file.filename, "message": "Model not connected yet!"}
