@@ -48,7 +48,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <h1 className="text-3xl font-bold mb-8">Deepfake Detector</h1>
 
-      <input type="file" accept="image/*" onChange={handleFileChange} />
+      <input type="file" accept="image/*" onChange={(e) => { alert("File input triggered!"); handleFileChange(e); }} />
 
       <button
         onClick={handleSubmit}
