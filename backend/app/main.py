@@ -12,11 +12,11 @@ app.add_middleware(
     allow_methods=["*"],
 )
 
-app.get("/")
+@app.get("/")
 def health_check():
     return {"status": "ok"}
 
-app.post("predict")
+@app.post("predict")
 async def predict(file: UploadFile = File(...)):
     contents = await file.read()
     result = predict_image(contents)
