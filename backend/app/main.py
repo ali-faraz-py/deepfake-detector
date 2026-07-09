@@ -1,5 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from app.model import predict_image
+
 
 app = FastAPI(title="Deepfake Detector API")
 
@@ -17,4 +19,5 @@ def health_check():
 app.post("predict")
 async def predict(file: UploadFile = File(...)):
     contents = await file.read()
-    return {"filename": file.filename, "message": "Model not connected yet!"}
+    result = predict_image(contents)
+    return result
