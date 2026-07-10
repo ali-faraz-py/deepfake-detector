@@ -71,13 +71,19 @@ export default function Home() {
           />
         </label>
 
-        {preview && (
+        {preview && file?.type.startsWith("video/") ? (
+          <video
+            src={preview}
+            controls
+            className="mt-4 w-full h-48 object-cover rounded-xl"
+          />
+        ) : preview ? (
           <img
             src={preview}
             alt="Preview"
             className="mt-4 w-full h-48 object-cover rounded-xl"
           />
-        )}
+        ) : null}
 
         <button
           onClick={handleSubmit}
