@@ -1,6 +1,8 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from app.model import predict_image
+from app.model import predict_image, predict_video
+from app.preprocessing import extract_frames
+import os
 
 
 app = FastAPI(title="Deepfake Detector API")
@@ -19,5 +21,13 @@ def health_check():
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     contents = await file.read()
-    result = predict_image(contents)
+
+    if file.content_type.startswith("video/"):
+        frames = extract_frames(contents)
+        result = predict_video(frames)
+        if os.path.exists("temp_video.mp4"):
+            os.remove("temp_video.mp4")
+    else:
+        result = predict_image(contents)
+
     return result
