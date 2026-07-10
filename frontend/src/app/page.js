@@ -65,7 +65,7 @@ export default function Home() {
           </span>
           <input
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             onChange={handleFileChange}
             className="hidden"
           />
