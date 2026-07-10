@@ -56,12 +56,12 @@ export default function Home() {
           Deepfake Detector
         </h1>
         <p className="text-sm text-center text-gray-500 mb-6">
-          Upload a face image to check if it's real or AI-generated.
+          Upload a face image/video to check if it's real or AI-generated.
         </p>
 
         <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-6 cursor-pointer hover:border-gray-400 transition">
           <span className="text-sm text-gray-500 mb-2">
-            {file ? file.name : "Click to select an image"}
+            {file ? file.name : "Click to select an image/video"}
           </span>
           <input
             type="file"
