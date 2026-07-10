@@ -31,3 +31,23 @@ def predict_image(image_bytes: bytes):
         "prediction": label,
         "confidence": round(confidence.item() * 100, 2)
     }
+
+def predict_video(frames):
+    fake_scores = []
+
+    for frame in frames:
+        image = transform(frame).unsqueeze(0).to(device)
+        with torch.no_grad():
+            outputs = model(image)
+            probabilities = torch.softmax(outputs, dim=1)
+            fake_scores.append(probabilities[0][1].item())
+
+    avg_fake_score = sum(fake_scores) / len(fake_scores)
+    label = "Fake" if avg_fake_score > 0.5 else "Real"
+    confidence = avg_fake_score if label == "Fake" else 1 - avg_fake_score
+
+    return {
+        "prediction": label,
+        "confidence": round(confidence * 100, 2),
+        "frames_analyzed": len(frames)
+    }
