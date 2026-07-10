@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function Home() {
   const [file, setFile] = useState(null);
@@ -8,17 +8,45 @@ export default function Home() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [history, setHistory] = useState([]);
+  const fileInputRef = useRef(null);
 
-  const handleFileChange = (e) => {
-    const selected = e.target.files[0];
+  const processFile = (selected) => {
+    if (!selected) return;
     setFile(selected);
     setResult(null);
     setError(null);
+    setPreview(URL.createObjectURL(selected));
+  };
 
-    if (selected) {
-      setPreview(URL.createObjectURL(selected));
-    } else {
-      setPreview(null);
+  const handleFileChange = (e) => {
+    processFile(e.target.files[0]);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const dropped = e.dataTransfer.files[0];
+    processFile(dropped);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleReset = () => {
+    setFile(null);
+    setPreview(null);
+    setResult(null);
+    setError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -42,6 +70,16 @@ export default function Home() {
 
       const data = await response.json();
       setResult(data);
+
+      setHistory((prev) => [
+        {
+          name: file.name,
+          prediction: data.prediction,
+          confidence: data.confidence,
+          type: file.type.startsWith("video/") ? "video" : "image",
+        },
+        ...prev,
+      ].slice(0, 5));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -59,11 +97,21 @@ export default function Home() {
           Upload a face image/video to check if it's real or AI-generated.
         </p>
 
-        <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-6 cursor-pointer hover:border-gray-400 transition">
-          <span className="text-sm text-gray-500 mb-2">
-            {file ? file.name : "Click to select an image/video"}
+        <label
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer transition ${
+            isDragging
+              ? "border-gray-900 bg-gray-100"
+              : "border-gray-300 hover:border-gray-400"
+          }`}
+        >
+          <span className="text-sm text-gray-500 mb-2 text-center">
+            {file ? file.name : "Click or drag a file here"}
           </span>
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*,video/*"
             onChange={handleFileChange}
@@ -71,19 +119,20 @@ export default function Home() {
           />
         </label>
 
-        {preview && file?.type.startsWith("video/") ? (
-          <video
-            src={preview}
-            controls
-            className="mt-4 w-full h-48 object-cover rounded-xl"
-          />
-        ) : preview ? (
-          <img
-            src={preview}
-            alt="Preview"
-            className="mt-4 w-full h-48 object-cover rounded-xl"
-          />
-        ) : null}
+        {preview &&
+          (file?.type.startsWith("video/") ? (
+            <video
+              src={preview}
+              controls
+              className="mt-4 w-full h-48 object-cover rounded-xl"
+            />
+          ) : (
+            <img
+              src={preview}
+              alt="Preview"
+              className="mt-4 w-full h-48 object-cover rounded-xl"
+            />
+          ))}
 
         <button
           onClick={handleSubmit}
@@ -113,6 +162,49 @@ export default function Home() {
           >
             <p className="text-lg font-semibold">{result.prediction}</p>
             <p className="text-sm">{result.confidence}% confidence</p>
+            {result.frames_analyzed && (
+              <p className="text-xs text-gray-500 mt-1">
+                Based on {result.frames_analyzed} frames
+              </p>
+            )}
+          </div>
+        )}
+
+        {(file || result) && (
+          <button
+            onClick={handleReset}
+            className="mt-3 w-full py-2 text-sm text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition cursor-pointer"
+          >
+            Try Another
+          </button>
+        )}
+
+        {history.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <h2 className="text-sm font-medium text-gray-700 mb-3">
+              Recent Checks
+            </h2>
+            <ul className="space-y-2">
+              {history.map((item, i) => (
+                <li
+                  key={i}
+                  className="flex items-center justify-between text-sm"
+                >
+                  <span className="text-gray-600 truncate max-w-[160px]">
+                    {item.name}
+                  </span>
+                  <span
+                    className={`font-medium ${
+                      item.prediction === "Fake"
+                        ? "text-red-600"
+                        : "text-green-600"
+                    }`}
+                  >
+                    {item.prediction} ({item.confidence}%)
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>
