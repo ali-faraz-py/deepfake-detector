@@ -4,40 +4,45 @@ import { useState } from "react";
 
 export default function Home() {
   const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleFileChange = (e) => {
-    console.log("File selected:", e.target.files[0]);
-    setFile(e.target.files[0]);
+    const selected = e.target.files[0];
+    setFile(selected);
     setResult(null);
     setError(null);
+
+    if (selected) {
+      setPreview(URL.createObjectURL(selected));
+    } else {
+      setPreview(null);
+    }
   };
 
   const handleSubmit = async () => {
-    console.log("Button clicked, file is:", file);
     if (!file) return;
 
     setLoading(true);
     setError(null);
+    setResult(null);
 
     try {
       const formData = new FormData();
       formData.append("file", file);
 
-      console.log("Sending request to backend...");
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/predict`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+      const response = await fetch(`${apiUrl}/predict`, {
         method: "POST",
         body: formData,
       });
 
-      console.log("Response received:", response.status);
       const data = await response.json();
-      console.log("Data:", data);
       setResult(data);
     } catch (err) {
-      console.error("Error occurred:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -45,31 +50,62 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-3xl font-bold mb-8">Deepfake Detector</h1>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-6">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
+        <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
+          Deepfake Detector
+        </h1>
+        <p className="text-sm text-center text-gray-500 mb-6">
+          Upload a face image to check if it's real or AI-generated.
+        </p>
 
-      <input type="file" accept="image/*" onChange={(e) => { alert("File input triggered!"); handleFileChange(e); }} />
+        <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-6 cursor-pointer hover:border-gray-400 transition">
+          <span className="text-sm text-gray-500 mb-2">
+            {file ? file.name : "Click to select an image"}
+          </span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </label>
 
-      <button
-        onClick={handleSubmit}
-        disabled={!file || loading}
-        className="mt-4 px-6 py-2 bg-black text-white rounded disabled:opacity-50 cursor-pointer"
-      >
-        {loading ? "Analyzing..." : "Check Image"}
-      </button>
+        {preview && (
+          <img
+            src={preview}
+            alt="Preview"
+            className="mt-4 w-full h-48 object-cover rounded-xl"
+          />
+        )}
 
-      {error && (
-        <div className="mt-8 text-xl text-red-600">
-          <p>Error: {error}</p>
-        </div>
-      )}
+        <button
+          onClick={handleSubmit}
+          disabled={!file || loading}
+          className="mt-6 w-full py-3 bg-gray-900 text-white font-medium rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-800 transition cursor-pointer"
+        >
+          {loading ? "Analyzing..." : "Check Image"}
+        </button>
 
-      {result && (
-        <div className="mt-8 text-xl">
-          <p>Prediction: {result.prediction}</p>
-          <p>Confidence: {result.confidence}%</p>
-        </div>
-      )}
+        {error && (
+          <p className="mt-4 text-sm text-red-600 text-center">
+            Something went wrong: {error}
+          </p>
+        )}
+
+        {result && (
+          <div
+            className={`mt-6 p-4 rounded-xl text-center ${
+              result.prediction === "Fake"
+                ? "bg-red-50 text-red-700"
+                : "bg-green-50 text-green-700"
+            }`}
+          >
+            <p className="text-lg font-semibold">{result.prediction}</p>
+            <p className="text-sm">{result.confidence}% confidence</p>
+          </div>
+        )}
+      </div>
     </main>
   );
 }
