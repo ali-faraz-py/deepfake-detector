@@ -90,7 +90,11 @@ export default function Home() {
           disabled={!file || loading}
           className="mt-6 w-full py-3 bg-gray-900 text-white font-medium rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-800 transition cursor-pointer"
         >
-          {loading ? "Analyzing..." : "Check Image"}
+          {loading
+            ? "Analyzing..."
+            : file?.type.startsWith("video/")
+            ? "Check Video"
+            : "Check Image"}
         </button>
 
         {error && (
