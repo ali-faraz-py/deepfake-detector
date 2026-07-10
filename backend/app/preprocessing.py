@@ -4,7 +4,7 @@ from PIL import Image
 
 
 
-def extract_frames(video_bytes: bytes, max_frames: int = 10):
+def extract_frames(video_bytes: bytes, max_frames: int = 5):
     with open("temp_video.mp4", "wb") as f:
         f.write(video_bytes)
 

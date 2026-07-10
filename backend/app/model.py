@@ -4,6 +4,7 @@ from efficientnet_pytorch import EfficientNet
 from torchvision import transforms
 from PIL import Image
 import io
+import gc
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=2)
@@ -42,6 +43,8 @@ def predict_video(frames):
             probabilities = torch.softmax(outputs, dim=1)
             fake_scores.append(probabilities[0][1].item())
 
+    gc.collect()
+    
     avg_fake_score = sum(fake_scores) / len(fake_scores)
     label = "Fake" if avg_fake_score > 0.5 else "Real"
     confidence = avg_fake_score if label == "Fake" else 1 - avg_fake_score
