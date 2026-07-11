@@ -6,12 +6,12 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const SAMPLE_IMAGES = [
   {
-    label: "Try Sample 1",
-    url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600",
+    label: "Try Real Photo",
+    url: "/sample-real.jpg",
   },
   {
-    label: "Try Sample 2",
-    url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600",
+    label: "Try AI-Generated Photo",
+    url: "/sample-fake.jpg",
   },
 ];
 
