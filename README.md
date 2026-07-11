@@ -11,9 +11,13 @@ An AI-powered web app that analyzes uploaded face images and videos to classify 
 
 - Upload a face **image** or **video**
 - The model classifies it as **Real** or **Fake**
-- Returns a confidence percentage
+- Returns a confidence percentage, shown with a visual confidence bar
 - For videos, samples multiple frames and averages predictions across them
 - Drag-and-drop upload, live preview, and a history of recent checks
+- Try-it-now sample buttons (one real photo, one AI-generated photo) for visitors without their own test files
+- File type and size validation, with toast notifications for errors
+- Dark mode toggle
+- A visible disclaimer noting the model's known generalization limits (see below)
 
 ---
 
