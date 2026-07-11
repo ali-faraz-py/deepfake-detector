@@ -7,7 +7,8 @@ import io
 import gc
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=2)
+model = EfficientNet.from_name('efficientnet-b0', num_classes=2)
+model.load_state_dict(torch.load('models/deepfake_model.pth', map_location=device))
 model = model.to(device)
 model.eval()
 
