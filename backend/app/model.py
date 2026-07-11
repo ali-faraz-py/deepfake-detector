@@ -42,7 +42,7 @@ def predict_video(frames):
         with torch.no_grad():
             outputs = model(image)
             probabilities = torch.softmax(outputs, dim=1)
-            fake_scores.append(probabilities[0][1].item())
+            fake_scores.append(probabilities[0][0].item())
 
     gc.collect()
     
