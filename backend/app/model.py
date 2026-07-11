@@ -27,7 +27,7 @@ def predict_image(image_bytes: bytes):
         probabilities = torch.softmax(outputs, dim=1)
         confidence, predicted_class = torch.max(probabilities, dim=1)
 
-    label = "Fake" if predicted_class.item() == 1 else "Real"
+    label = "Real" if predicted_class.item() == 1 else "Fake"
 
     return{
         "prediction": label,
