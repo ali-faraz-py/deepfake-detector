@@ -9,7 +9,7 @@ An AI-powered web app that analyzes uploaded face images and videos to classify 
 
 ## Demo
 
-![App Demo](demo/demo.gif)
+![App Demo](demo\demo.gif)
 
 ---
 
